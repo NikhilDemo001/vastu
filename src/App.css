@@ -1,0 +1,8 @@
+.app-shell {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+main {
+  min-height: 70vh;
+}
