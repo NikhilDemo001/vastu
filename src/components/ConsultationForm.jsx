@@ -7,18 +7,12 @@ const initialFormData = {
   email: '',
   phone: '',
   propertyType: '',
-  concern: '',
   timeline: '',
+  concern: '',
 };
 
 const propertyTypes = ['Apartment', 'Independent House', 'Villa', 'Office', 'Plot / Land', 'Retail Space'];
 const timelines = ['This week', 'Within 2 weeks', 'This month', 'Planning stage'];
-
-const nextSteps = [
-  'We review your goals and plan type.',
-  'You receive a focused discovery call.',
-  'We prepare room-wise Vastu recommendations.',
-];
 
 const ConsultationForm = ({ compact = false }) => {
   const [formData, setFormData] = useState(initialFormData);
@@ -27,31 +21,42 @@ const ConsultationForm = ({ compact = false }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const validateForm = () => {
-    const nextErrors = {};
-    if (!validateRequired(formData.name)) nextErrors.name = 'Name is required.';
-    else if (!validateName(formData.name)) nextErrors.name = 'Use at least two letters.';
-    if (!validateRequired(formData.email)) nextErrors.email = 'Email is required.';
-    else if (!validateEmail(formData.email)) nextErrors.email = 'Enter a valid email.';
-    if (!validateRequired(formData.phone)) nextErrors.phone = 'Phone is required.';
-    else if (!validatePhone(formData.phone)) nextErrors.phone = 'Enter a valid 10 digit phone.';
-    if (!validateRequired(formData.propertyType)) nextErrors.propertyType = 'Choose a property type.';
-    if (!validateRequired(formData.concern)) nextErrors.concern = 'Tell us what you want to improve.';
-    if (!validateRequired(formData.timeline)) nextErrors.timeline = 'Choose a preferred timeline.';
-    return nextErrors;
-  };
-
-  const handleChange = (event) => {
+  const handleTextChange = (event) => {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
     setTouched((current) => ({ ...current, [name]: true }));
     setErrors((current) => ({ ...current, [name]: '' }));
   };
 
+  const validateForm = () => {
+    const nextErrors = {};
+    if (!validateRequired(formData.name)) nextErrors.name = 'Full name is required.';
+    else if (!validateName(formData.name)) nextErrors.name = 'Please enter a valid name (minimum 2 letters).';
+
+    if (!validateRequired(formData.email)) nextErrors.email = 'Email address is required.';
+    else if (!validateEmail(formData.email)) nextErrors.email = 'Please enter a valid email address.';
+
+    if (!validateRequired(formData.phone)) nextErrors.phone = 'Phone number is required.';
+    else if (!validatePhone(formData.phone)) nextErrors.phone = 'Please enter a valid 10-digit number.';
+
+    if (!validateRequired(formData.propertyType)) nextErrors.propertyType = 'Please select your property type.';
+    if (!validateRequired(formData.timeline)) nextErrors.timeline = 'Please select a preferred timeline.';
+
+    return nextErrors;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const nextErrors = validateForm();
-    setTouched(Object.keys(initialFormData).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
+    
+    // Touch all fields
+    setTouched({
+      name: true,
+      email: true,
+      phone: true,
+      propertyType: true,
+      timeline: true,
+    });
 
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
@@ -60,149 +65,235 @@ const ConsultationForm = ({ compact = false }) => {
 
     setIsSubmitting(true);
     setErrors({});
+
     try {
       await submitConsultationRequest(formData);
       setSubmitSuccess(true);
-      setFormData(initialFormData);
-      setTouched({});
     } catch (error) {
-      setErrors({ submit: 'We could not submit the request. Please try again.' });
+      setErrors({ submit: 'Could not connect. Please check your internet connection and try again.' });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const fieldClass = (name) =>
-    `mt-2 w-full rounded-[8px] border bg-white px-4 py-3 text-[#111715] shadow-sm transition ${
-      errors[name] && touched[name]
-        ? 'border-red-400 focus:border-red-500'
-        : 'border-[#111715]/20 focus:border-[#0f766e]'
-    }`;
+  const handleReset = () => {
+    setFormData(initialFormData);
+    setErrors({});
+    setTouched({});
+    setSubmitSuccess(false);
+  };
 
   return (
-    <section className={compact ? 'py-8' : 'py-20'}>
-      <div className="section-shell">
+    <section className={compact ? 'py-6' : 'py-16'}>
+      <div className="section-shell max-w-4xl mx-auto">
+        
+        {/* Page Headings */}
         {!compact && (
-          <div className="mb-10 grid gap-5 md:grid-cols-[0.8fr_1.2fr] md:items-end">
-            <div>
-              <p className="eyebrow">Personal consultation</p>
-              <h2 className="mt-3 font-display text-5xl font-bold leading-none">
-                Get a practical Vastu plan for your exact space.
-              </h2>
-            </div>
-            <p className="max-w-2xl leading-8 text-[#68736d] md:justify-self-end">
-              Share the property type, your priorities, and timeline. The form validates instantly and keeps the next step
-              clear on mobile and desktop.
+          <div className="mb-12 text-center">
+            <p className="eyebrow mx-auto justify-center">Consultation Studio</p>
+            <h2 className="mt-4 font-display text-5xl font-extrabold tracking-tight text-[#111715] dark:text-[#f0ede8] sm:text-6xl max-w-3xl mx-auto leading-none">
+              Get a practical Vastu plan for your exact space.
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-base sm:text-lg text-[#68736d] dark:text-[#a8b8b2]">
+              Share the property type, your priorities, and timeline. The form validates instantly and keeps the next step clear.
             </p>
           </div>
         )}
 
-        <div className="grid overflow-hidden rounded-[8px] border border-[#111715]/10 bg-[#fffaf2] shadow-[0_24px_70px_rgba(17,23,21,0.12)] lg:grid-cols-[0.78fr_1.22fr]">
-          <aside className="ink-panel relative min-h-[430px] overflow-hidden p-6 text-[#fffaf2] sm:p-8">
-            <div
-              className="absolute inset-0 opacity-20"
-              style={{
-                backgroundImage:
-                  "url('https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=900&q=80')",
-                backgroundPosition: 'center',
-                backgroundSize: 'cover',
-              }}
-            />
-            <div className="relative">
-              <p className="eyebrow text-[#f2b84b]">What happens next</p>
-              <h3 className="mt-3 font-display text-5xl font-bold leading-none">A guided audit, not a generic report.</h3>
-              <div className="mt-8 grid gap-4">
-                {nextSteps.map((item, index) => (
-                  <div key={item} className="grid grid-cols-[44px_1fr] gap-4 rounded-[8px] border border-white/10 bg-white/10 p-4">
-                    <span className="grid h-10 w-10 place-items-center rounded-[8px] bg-[#f2b84b] font-bold text-[#111715]">
-                      {index + 1}
-                    </span>
-                    <p className="leading-7 text-white/80">{item}</p>
+        {/* Form Container */}
+        <div className="relative overflow-hidden rounded-[20px] border border-[#111715]/10 dark:border-white/10 bg-[#fffaf2] dark:bg-[#0c100f] shadow-[0_32px_90px_rgba(17,23,21,0.08)] dark:shadow-[0_32px_90px_rgba(0,0,0,0.4)]">
+          <div className="noise" />
+
+          {submitSuccess ? (
+            /* SUCCESS VIEW */
+            <div className="text-center py-16 px-6 max-w-xl mx-auto space-y-6 relative z-10">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#0f766e]/10 border border-[#0f766e]/30 text-[#0f766e] dark:text-[#2a9d8f] text-4xl animate-bounce">
+                ✓
+              </div>
+
+              <div className="space-y-2">
+                <p className="eyebrow mx-auto justify-center">Request Received</p>
+                <h3 className="font-display text-4xl font-extrabold text-[#111715] dark:text-white leading-none">
+                  Vastu Vault Active.
+                </h3>
+                <p className="text-sm text-[#68736d] dark:text-[#a8b8b2] leading-relaxed pt-2">
+                  Thank you, **{formData.name}**. We have securely registered your consultation ticket. A certified chief Vastu consultant will review your details shortly.
+                </p>
+              </div>
+
+              {/* Summary box styled like a luxury card receipt */}
+              <div className="p-6 rounded-2xl border border-dashed border-[#c8922a]/30 bg-[#c8922a]/5 text-left space-y-3">
+                <div className="flex justify-between items-center border-b border-[#111715]/5 pb-2">
+                  <span className="text-[10px] font-mono uppercase text-slate-400">DIGITAL AUDIT RECEIPT</span>
+                  <span className="font-mono text-xs font-bold text-[#c8922a]">PORTAL_LINK_LIVE</span>
+                </div>
+                <div className="grid grid-cols-2 gap-y-2 text-xs">
+                  <div>
+                    <span className="block text-slate-400 text-[10px]">VISITOR</span>
+                    <strong className="text-slate-800 dark:text-slate-200">{formData.name}</strong>
                   </div>
-                ))}
+                  <div>
+                    <span className="block text-slate-400 text-[10px]">PHONE NUMBER</span>
+                    <strong className="text-slate-800 dark:text-slate-200">{formData.phone}</strong>
+                  </div>
+                  <div>
+                    <span className="block text-slate-400 text-[10px]">PROPERTY TYPE</span>
+                    <strong className="text-slate-800 dark:text-slate-200">{formData.propertyType}</strong>
+                  </div>
+                  <div>
+                    <span className="block text-slate-400 text-[10px]">AUDIT TIMELINE</span>
+                    <strong className="text-slate-800 dark:text-slate-200">{formData.timeline}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 space-y-4">
+                <p className="text-xs text-slate-400">
+                  A verification confirmation has been mapped to **{formData.email}**. Keep your floor plans ready.
+                </p>
+                <button onClick={handleReset} className="btn-secondary">
+                  Send another request
+                </button>
               </div>
             </div>
-          </aside>
-
-          <div className="p-5 sm:p-8">
-            {submitSuccess ? (
-              <div className="grid min-h-[420px] place-items-center py-10 text-center">
-                <div>
-                  <div className="mx-auto grid h-16 w-16 place-items-center rounded-[8px] bg-[#0f766e] text-2xl font-bold text-white">
-                    OK
-                  </div>
-                  <h3 className="mt-5 font-display text-5xl font-bold leading-none">Request received.</h3>
-                  <p className="mx-auto mt-3 max-w-xl leading-8 text-[#68736d]">
-                    Thank you. We will review your details and contact you with the next step shortly.
-                  </p>
-                  <button className="btn-secondary mt-7" onClick={() => setSubmitSuccess(false)}>
-                    Send another request
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="grid gap-5">
+          ) : (
+            /* CLEAN SINGLE-COLUMN FORM */
+            <div className="p-8 sm:p-12 lg:p-16 relative z-10">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                
                 <div className="grid gap-5 md:grid-cols-2">
-                  <label className="font-bold">
+                  {/* Full Name */}
+                  <label className="font-bold text-[11px] uppercase tracking-wider text-slate-500 block">
                     Full name
-                    <input name="name" value={formData.name} onChange={handleChange} className={fieldClass('name')} placeholder="Your name" />
-                    {errors.name && touched.name && <span className="mt-2 block text-sm text-red-600">{errors.name}</span>}
+                    <input
+                      name="name"
+                      value={formData.name}
+                      onChange={handleTextChange}
+                      className={`mt-1.5 w-full rounded-lg border bg-white/70 dark:bg-[#080c0b] px-4 py-3 text-[#111715] dark:text-white shadow-sm transition text-sm ${
+                        errors.name && touched.name
+                          ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                          : 'border-[#111715]/10 dark:border-white/10 focus:border-[#0f766e] focus:ring-1 focus:ring-[#0f766e]'
+                      }`}
+                      placeholder="Your name"
+                    />
+                    {errors.name && touched.name && <span className="mt-1 block text-[10px] font-bold text-red-500">{errors.name}</span>}
                   </label>
-                  <label className="font-bold">
+
+                  {/* Email address */}
+                  <label className="font-bold text-[11px] uppercase tracking-wider text-slate-500 block">
                     Email address
-                    <input name="email" type="email" value={formData.email} onChange={handleChange} className={fieldClass('email')} placeholder="you@example.com" />
-                    {errors.email && touched.email && <span className="mt-2 block text-sm text-red-600">{errors.email}</span>}
+                    <input
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleTextChange}
+                      className={`mt-1.5 w-full rounded-lg border bg-white/70 dark:bg-[#080c0b] px-4 py-3 text-[#111715] dark:text-white shadow-sm transition text-sm ${
+                        errors.email && touched.email
+                          ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                          : 'border-[#111715]/10 dark:border-white/10 focus:border-[#0f766e] focus:ring-1 focus:ring-[#0f766e]'
+                      }`}
+                      placeholder="you@example.com"
+                    />
+                    {errors.email && touched.email && <span className="mt-1 block text-[10px] font-bold text-red-500">{errors.email}</span>}
                   </label>
-                  <label className="font-bold">
+
+                  {/* Phone number */}
+                  <label className="font-bold text-[11px] uppercase tracking-wider text-slate-500 block">
                     Phone number
-                    <input name="phone" type="tel" value={formData.phone} onChange={handleChange} className={fieldClass('phone')} placeholder="10 digit number" />
-                    {errors.phone && touched.phone && <span className="mt-2 block text-sm text-red-600">{errors.phone}</span>}
+                    <input
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleTextChange}
+                      className={`mt-1.5 w-full rounded-lg border bg-white/70 dark:bg-[#080c0b] px-4 py-3 text-[#111715] dark:text-white shadow-sm transition text-sm ${
+                        errors.phone && touched.phone
+                          ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                          : 'border-[#111715]/10 dark:border-white/10 focus:border-[#0f766e] focus:ring-1 focus:ring-[#0f766e]'
+                      }`}
+                      placeholder="10 digit number"
+                    />
+                    {errors.phone && touched.phone && <span className="mt-1 block text-[10px] font-bold text-red-500">{errors.phone}</span>}
                   </label>
-                  <label className="font-bold">
+
+                  {/* Property Type */}
+                  <label className="font-bold text-[11px] uppercase tracking-wider text-slate-500 block">
                     Property type
-                    <select name="propertyType" value={formData.propertyType} onChange={handleChange} className={fieldClass('propertyType')}>
-                      <option value="">Select one</option>
-                      {propertyTypes.map((item) => <option key={item} value={item}>{item}</option>)}
+                    <select
+                      name="propertyType"
+                      value={formData.propertyType}
+                      onChange={handleTextChange}
+                      className={`mt-1.5 w-full rounded-lg border bg-white/70 dark:bg-[#080c0b] px-4 py-3 text-[#111715] dark:text-white shadow-sm transition text-sm ${
+                        errors.propertyType && touched.propertyType
+                          ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                          : 'border-[#111715]/10 dark:border-white/10 focus:border-[#0f766e] focus:ring-1 focus:ring-[#0f766e]'
+                      }`}
+                    >
+                      <option value="">Select property type</option>
+                      {propertyTypes.map((item) => (
+                        <option key={item} value={item}>{item}</option>
+                      ))}
                     </select>
-                    {errors.propertyType && touched.propertyType && <span className="mt-2 block text-sm text-red-600">{errors.propertyType}</span>}
+                    {errors.propertyType && touched.propertyType && <span className="mt-1 block text-[10px] font-bold text-red-500">{errors.propertyType}</span>}
                   </label>
                 </div>
 
-                <label className="font-bold">
+                {/* Timeline */}
+                <label className="font-bold text-[11px] uppercase tracking-wider text-slate-500 block">
+                  Preferred Timeline
+                  <select
+                    name="timeline"
+                    value={formData.timeline}
+                    onChange={handleTextChange}
+                    className={`mt-1.5 w-full rounded-lg border bg-white/70 dark:bg-[#080c0b] px-4 py-3 text-[#111715] dark:text-white shadow-sm transition text-sm ${
+                      errors.timeline && touched.timeline
+                        ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                        : 'border-[#111715]/10 dark:border-white/10 focus:border-[#0f766e] focus:ring-1 focus:ring-[#0f766e]'
+                    }`}
+                  >
+                    <option value="">Select timeline</option>
+                    {timelines.map((item) => (
+                      <option key={item} value={item}>{item}</option>
+                    ))}
+                  </select>
+                  {errors.timeline && touched.timeline && <span className="mt-1 block text-[10px] font-bold text-red-500">{errors.timeline}</span>}
+                </label>
+
+                {/* Main Concern or Goal */}
+                <label className="font-bold text-[11px] uppercase tracking-wider text-slate-500 block">
                   Main concern or goal
                   <textarea
                     name="concern"
                     value={formData.concern}
-                    onChange={handleChange}
+                    onChange={handleTextChange}
                     rows={4}
-                    className={fieldClass('concern')}
-                    placeholder="Example: improve bedroom layout, review kitchen placement, plan a new office..."
+                    className="mt-1.5 w-full rounded-lg border border-[#111715]/10 dark:border-white/10 bg-white/70 dark:bg-[#080c0b] px-4 py-3 text-[#111715] dark:text-white shadow-sm transition text-sm focus:border-[#0f766e] focus:ring-1 focus:ring-[#0f766e]"
+                    placeholder="Example: improve bedroom layout, review kitchen fire energy, plan a new building entrance..."
                   />
-                  {errors.concern && touched.concern && <span className="mt-2 block text-sm text-red-600">{errors.concern}</span>}
                 </label>
 
-                <label className="font-bold">
-                  Preferred timeline
-                  <select name="timeline" value={formData.timeline} onChange={handleChange} className={fieldClass('timeline')}>
-                    <option value="">Select timeline</option>
-                    {timelines.map((item) => <option key={item} value={item}>{item}</option>)}
-                  </select>
-                  {errors.timeline && touched.timeline && <span className="mt-2 block text-sm text-red-600">{errors.timeline}</span>}
-                </label>
+                {errors.submit && (
+                  <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 font-semibold text-xs text-red-500">
+                    {errors.submit}
+                  </div>
+                )}
 
-                {errors.submit && <div className="rounded-[8px] bg-red-50 p-4 font-semibold text-red-700">{errors.submit}</div>}
-
-                <div className="grid gap-4 pt-2 sm:grid-cols-[auto_1fr] sm:items-center">
-                  <button className="btn-primary" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                {/* Submit button block */}
+                <div className="grid gap-4 pt-3 sm:grid-cols-[auto_1fr] sm:items-center">
+                  <button
+                    className="btn btn-gold px-10 w-full sm:w-auto"
+                    type="submit"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Securing portal...' : 'Submit Request ➔'}
                   </button>
-                  <p className="text-sm font-semibold leading-6 text-[#68736d]">
-                    Your details stay private and are used only for consultation follow-up.
+                  <p className="text-[10px] font-semibold leading-normal text-slate-400">
+                    🔒 Details are encrypted securely. Floorplans stay confidential under legal non-disclosure.
                   </p>
                 </div>
               </form>
-            )}
-          </div>
+            </div>
+          )}
+
         </div>
       </div>
     </section>

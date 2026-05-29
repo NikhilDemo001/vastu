@@ -19,6 +19,49 @@ const CheckIcon = ({ dark }) => (
   </svg>
 );
 
+const serviceMetaphysicalData = {
+  'Tarot Card Reading': {
+    chakras: 'Third Eye & Crown 👁️',
+    focus: 'Relationship cycles, career decision paths & energy knots.',
+    deliverable: '45-minute live video session + 3-page custom Spread analysis PDF.',
+  },
+  'Angels Consultation': {
+    chakras: 'Heart & Throat 💖',
+    focus: 'Angelic protection shields, guidance messages & spirit cord healing.',
+    deliverable: 'Guardian attunement ritual + 1 custom sacred candle prescription.',
+  },
+  'Crystals Grid Audit': {
+    chakras: 'Solar Plexus & Heart ⛰️',
+    focus: 'Spatial crystal grids, auric boundaries & chakra balancing.',
+    deliverable: 'Full directional grid map overlay + live balancing call session.',
+  },
+  'Runes Casting': {
+    chakras: 'Root & Throat 🛡️',
+    focus: 'Ancestral blockages, decision bottlenecks & runic timeline mappings.',
+    deliverable: '3-cast Elder Futhark casting session + runestone recommendations.',
+  },
+  'Cartomancy space audit': {
+    chakras: 'All 7 Chakras 🌟',
+    focus: 'Blueprint card flow, home layout assessments & aura flow balances.',
+    deliverable: 'Direct layout drawing annotate overlay + live structural call.',
+  },
+  'Vastu & Feng Shui audit': {
+    chakras: 'Earth Resonance & Solar 🏡',
+    focus: 'Wealth gateways, relationship directions & structural remedies (0 demolition).',
+    deliverable: 'Certified Vastu Acharya audit report + directional elemental maps.',
+  },
+  'Numerology profile': {
+    chakras: 'Third Eye & Root 🔢',
+    focus: 'Lifetime cycle mapping, destiny calculations & custom grid vibrations.',
+    deliverable: 'Detailed 24-page personalized numerology report booklet.',
+  },
+  'Switch-Word remedy': {
+    chakras: 'Throat & Third Eye 🗣️',
+    focus: 'Subconscious manifestation, financial energy attraction & restful aura grids.',
+    deliverable: 'Personalized switch-words prescription + subliminal chanting audio guide.',
+  },
+};
+
 const ServicesPage = () => {
   useScrollReveal();
 
@@ -91,7 +134,7 @@ const ServicesPage = () => {
         </div>
       </section>
 
-      {/* ─── SERVICE PACKAGES ─── */}
+      {/* ─── SERVICE PACKAGES (COHESIVE DEEP INK-PANEL) ─── */}
       <section className="py-24 bg-[var(--paper-warm)]">
         <div className="section-shell">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
@@ -107,73 +150,94 @@ const ServicesPage = () => {
             </Link>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
+          {/* Cards Grid */}
+          <div className="grid gap-8 md:grid-cols-2">
             {servicePackages.map((service, index) => {
-              const isPopular = index === 2;
+              const meta = serviceMetaphysicalData[service.title] || {
+                chakras: 'General Aura Alignment ✨',
+                focus: 'Energetic shielding & spatial alignment.',
+                deliverable: 'Custom live audit call session.',
+              };
+
               return (
                 <article
                   key={service.title}
-                  className={`reveal card-tilt rounded-[20px] border p-8 relative overflow-hidden transition-all duration-300 ${
-                    isPopular
-                      ? 'ink-panel border-[var(--gold)]/30 shadow-[0_0_60px_rgba(201,150,58,0.12)]'
-                      : 'card-surface hover:border-[var(--border-gold)]'
-                  }`}
+                  className="reveal ink-panel border border-[var(--gold)]/30 rounded-[20px] p-8 shadow-[0_16px_48px_rgba(201,150,58,0.06)] relative overflow-hidden transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0_20px_50px_rgba(201,150,58,0.1)] flex flex-col justify-between min-h-[580px]"
                   style={{ transitionDelay: `${index * 80}ms` }}
                 >
-                  {/* Popular Badge */}
-                  {isPopular && (
-                    <span className="absolute top-5 right-5 font-mono text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] border border-[var(--gold)]/30">
-                      Most Popular
-                    </span>
-                  )}
+                  {/* Glowing saffron background filter */}
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--gold)]/[0.04] rounded-full blur-2xl pointer-events-none" />
 
-                  {/* Background glow for popular */}
-                  {isPopular && (
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--gold)]/5 rounded-full blur-3xl pointer-events-none" />
-                  )}
+                  <div className="space-y-5">
+                    {/* Header: Eyebrow and Tag */}
+                    <div className="flex justify-between items-center">
+                      <span className="eyebrow eyebrow--gold block text-xs tracking-widest font-mono">
+                        {service.eyebrow}
+                      </span>
+                      <span className="text-[10px] font-mono uppercase bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/30 rounded-full px-2.5 py-0.5">
+                        Active Package
+                      </span>
+                    </div>
 
-                  <div className="relative z-10">
-                    <span className={`eyebrow block mb-3 ${isPopular ? 'eyebrow--gold' : ''}`}>
-                      {service.eyebrow}
-                    </span>
-
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <h3 className={`font-display text-3xl font-bold leading-tight ${isPopular ? 'text-white' : 'text-[var(--text-primary)]'}`}>
+                    {/* Title & Price */}
+                    <div className="flex items-start justify-between gap-4">
+                      <h3 className="font-display text-3xl font-extrabold text-white leading-tight">
                         {service.title}
                       </h3>
-                      <span className={`flex-shrink-0 rounded-[10px] px-4 py-2 font-display text-xl font-bold ${
-                        isPopular
-                          ? 'bg-[var(--gold)] text-[#0a0e0d]'
-                          : 'bg-[var(--jade)]/10 text-[var(--jade)] border border-[var(--jade)]/20'
-                      }`}>
+                      <span className="flex-shrink-0 rounded-[10px] px-4 py-2 font-display text-lg font-bold bg-[var(--gold)] text-[#0a0e0d] shadow-sm">
                         {service.price}
                       </span>
                     </div>
 
-                    <p className={`text-sm leading-relaxed mb-6 ${isPopular ? 'text-white/60' : 'text-[var(--text-secondary)]'}`}>
+                    {/* Description */}
+                    <p className="text-xs sm:text-sm leading-relaxed text-white/70">
                       {service.description}
                     </p>
 
-                    <div className="grid gap-2 mb-7">
-                      {service.includes.map((item) => (
-                        <div key={item} className={`flex items-start gap-3 rounded-[10px] border px-4 py-3 ${
-                          isPopular
-                            ? 'border-white/8 bg-white/5'
-                            : 'border-[var(--border)] bg-[var(--surface-2)]'
-                        }`}>
-                          <CheckIcon dark={isPopular} />
-                          <span className={`text-sm font-medium ${isPopular ? 'text-white/75' : 'text-[var(--text-primary)]'}`}>
-                            {item}
-                          </span>
+                    {/* Metaphysical Alignment Details (100% Static & Visible) */}
+                    <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02] space-y-2.5">
+                      <div className="flex justify-between items-center text-[10px] uppercase font-mono tracking-widest text-[#f2b84b] border-b border-white/5 pb-1">
+                        <span>Energy Alignment</span>
+                        <span>Diagnostics</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <span className="block text-slate-400 text-[10px] uppercase">Aligned Chakras</span>
+                          <strong className="text-white font-semibold">{meta.chakras}</strong>
                         </div>
-                      ))}
+                        <div>
+                          <span className="block text-slate-400 text-[10px] uppercase">Session Focus</span>
+                          <strong className="text-white font-semibold leading-normal block">{meta.focus}</strong>
+                        </div>
+                      </div>
                     </div>
 
+                    {/* Inclusions checklist */}
+                    <div className="space-y-2 pt-1">
+                      <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">Included in Session</span>
+                      <div className="grid gap-2">
+                        {service.includes.map((item) => (
+                          <div
+                            key={item}
+                            className="flex items-center gap-3 rounded-[10px] border border-white/8 bg-white/5 px-4 py-2"
+                          >
+                            <CheckIcon dark={true} />
+                            <span className="text-xs sm:text-sm font-semibold text-white/90">
+                              {item}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Direct Booking CTA */}
+                  <div className="pt-6">
                     <Link
                       to="/consult"
-                      className={isPopular ? 'btn btn-gold w-full justify-center' : 'btn btn-outline w-full justify-center'}
+                      className="btn btn-gold w-full justify-center text-center font-bold"
                     >
-                      {isPopular ? 'Book This Package' : 'Learn More'}
+                      Book Consultation Session ➔
                     </Link>
                   </div>
                 </article>
