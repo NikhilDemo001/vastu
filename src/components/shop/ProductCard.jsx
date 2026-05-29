@@ -32,23 +32,81 @@ const ProductCard = ({
     }
   };
 
+  const handleMouseMove = (e) => {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const xc = (x / rect.width) - 0.5;
+    const yc = (y / rect.height) - 0.5;
+
+    const maxTilt = 8; // gentle, premium tilt
+    const rotateX = -yc * maxTilt;
+    const rotateY = xc * maxTilt;
+
+    el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.015, 1.015, 1.015)`;
+    
+    const shineEl = el.querySelector('.product-card-shine');
+    if (shineEl) {
+      shineEl.style.opacity = '1';
+      shineEl.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255, 252, 240, 0.12) 0%, transparent 65%)`;
+    }
+  };
+
+  const handleMouseLeave = (e) => {
+    const el = e.currentTarget;
+    el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+    el.style.transition = 'transform 0.6s var(--ease-out), box-shadow 0.6s var(--ease-out)';
+    
+    const shineEl = el.querySelector('.product-card-shine');
+    if (shineEl) {
+      shineEl.style.opacity = '0';
+      shineEl.style.transition = 'opacity 0.6s var(--ease-out)';
+    }
+  };
+
+  const handleMouseEnter = (e) => {
+    const el = e.currentTarget;
+    el.style.transition = 'transform 0.1s var(--ease-out), box-shadow 0.1s var(--ease-out)';
+  };
+
   return (
-    <article className="group product-card card-surface overflow-hidden flex flex-col h-full bg-white dark:bg-[#111715] rounded-[16px] border border-black/5 dark:border-white/5 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#c8922a]/10">
+    <article 
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+      className="group product-card card-surface overflow-hidden flex flex-col h-full bg-white dark:bg-[#111715] rounded-[16px] border border-black/5 dark:border-white/5 transition-all duration-500 hover:shadow-2xl hover:shadow-[#c8922a]/10"
+    >
+      {/* 3D Glare Shine Overlay */}
+      <div 
+        className="product-card-shine absolute inset-0 pointer-events-none z-20 opacity-0 transition-opacity duration-300"
+        style={{ mixBlendMode: 'overlay' }}
+      />
       
       {/* Image & Badges Container */}
-      <div className="relative aspect-[1/1.15] bg-[#f9f7f3] dark:bg-[#0c100f] overflow-hidden group">
+      <div 
+        className="relative aspect-[1/1.15] bg-[#f9f7f3] dark:bg-[#0c100f] overflow-hidden group"
+        style={{ transformStyle: 'preserve-3d', transform: 'translateZ(10px)' }}
+      >
         <img
           src={product.image}
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-[1200ms] cubic-bezier(0.16, 1, 0.3, 1) group-hover:scale-105"
           loading="lazy"
+          style={{ transform: 'translateZ(0px)' }}
         />
         
         {/* Shimmer Overlay */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
         {/* Dynamic Badges */}
-        <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+        <div 
+          className="absolute top-4 left-4 flex flex-col gap-2 z-10"
+          style={{ transform: 'translateZ(30px) scale(0.9)' }}
+        >
           {product.discount > 0 && (
             <span className="bg-[#b84030] text-white text-[9px] font-extrabold px-2.5 py-1 rounded-[6px] uppercase tracking-widest shadow-md">
               -{product.discount}%
@@ -65,6 +123,7 @@ const ProductCard = ({
         <button
           onClick={(e) => { e.stopPropagation(); onToggleWishlist(product.name); }}
           className="absolute top-4 right-4 h-9 w-9 bg-white/90 dark:bg-[#111815]/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm hover:scale-110 active:scale-95 transition-transform z-10 border border-black/5 dark:border-white/10 group/heart"
+          style={{ transform: 'translateZ(35px)' }}
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart 
@@ -78,6 +137,7 @@ const ProductCard = ({
           <button
             onClick={() => onQuickView(product)}
             className="bg-white text-[#080c0b] font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-full hover:bg-[#e5a93a] hover:text-white active:scale-95 transition-all shadow-xl font-mono"
+            style={{ transform: 'translateZ(40px)' }}
           >
             Quick View
           </button>
@@ -85,10 +145,13 @@ const ProductCard = ({
       </div>
 
       {/* Product Content Details */}
-      <div className="p-5 flex flex-col flex-grow justify-between bg-white dark:bg-[#111715]">
+      <div 
+        className="p-5 flex flex-col flex-grow justify-between bg-white dark:bg-[#111715]"
+        style={{ transformStyle: 'preserve-3d', transform: 'translateZ(15px)' }}
+      >
         <div>
           {/* Brand and Stars Line */}
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between items-center mb-2" style={{ transform: 'translateZ(10px)' }}>
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#6b8c82] dark:text-[#a0b0aa] font-mono">
               {product.brand || 'Vastu Atelier'}
             </span>
@@ -105,12 +168,13 @@ const ProductCard = ({
           <h3 
             onClick={() => onQuickView(product)}
             className="font-display text-[17px] font-bold text-[#080c0b] dark:text-[#f0ede8] leading-snug mb-2 group-hover:text-[#0b6455] dark:group-hover:text-[#14a090] transition-colors cursor-pointer line-clamp-1"
+            style={{ transform: 'translateZ(25px)' }}
           >
             {product.name}
           </h3>
 
           {/* Pricing & Stock Banner */}
-          <div className="flex justify-between items-baseline mt-3">
+          <div className="flex justify-between items-baseline mt-3" style={{ transform: 'translateZ(15px)' }}>
             <div className="flex items-baseline gap-2">
               <span className="text-xl font-extrabold text-[#080c0b] dark:text-white tracking-tight tabular">
                 {symbol}{displayPrice.toLocaleString('en-IN')}
@@ -138,7 +202,7 @@ const ProductCard = ({
         </div>
 
         {/* Interactive Luxury Button */}
-        <div className="mt-5 pt-4 border-t border-black/5 dark:border-white/5">
+        <div className="mt-5 pt-4 border-t border-black/5 dark:border-white/5" style={{ transform: 'translateZ(20px)' }}>
           <button
             onClick={handleAdd}
             disabled={isAdding}

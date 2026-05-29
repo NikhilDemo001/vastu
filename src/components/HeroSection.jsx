@@ -91,10 +91,10 @@ const useParticleCanvas = () => {
 const HeroBadge = ({ value, label, delay = 0 }) => (
   <div
     className="flex flex-col items-center gap-1 px-5 py-3.5 rounded-[16px] border border-white/10 bg-white/5 backdrop-blur-xl"
-    style={{ animationDelay: `${delay}ms` }}
+    style={{ animationDelay: `${delay}ms`, transformStyle: 'preserve-3d', transform: 'translateZ(25px)' }}
   >
-    <span className="font-display text-2xl font-bold text-white leading-none tabular">{value}</span>
-    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">{label}</span>
+    <span className="font-display text-2xl font-bold text-white leading-none tabular" style={{ transform: 'translateZ(15px)' }}>{value}</span>
+    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50" style={{ transform: 'translateZ(8px)' }}>{label}</span>
   </div>
 );
 
@@ -140,6 +140,34 @@ const HeroSection = () => {
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
   }, []);
+
+  const handleMouseMove = (e) => {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const xc = (x / rect.width) - 0.5;
+    const yc = (y / rect.height) - 0.5;
+
+    const maxTilt = 6; // gentle, premium tilt
+    const rotateX = -yc * maxTilt;
+    const rotateY = xc * maxTilt;
+
+    el.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.008, 1.008, 1.008)`;
+  };
+
+  const handleMouseLeave = (e) => {
+    const el = e.currentTarget;
+    el.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+    el.style.transition = 'transform 0.7s var(--ease-out)';
+  };
+
+  const handleMouseEnter = (e) => {
+    const el = e.currentTarget;
+    el.style.transition = 'transform 0.1s var(--ease-out)';
+  };
 
   // Parallax offset
   const parallax = scrollY * 0.3;
@@ -292,36 +320,42 @@ const HeroSection = () => {
 
           {/* ── RIGHT: Glassmorphic Dashboard Panel ── */}
           <aside
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onMouseEnter={handleMouseEnter}
             className="flex flex-col gap-4 animate-slide-in-up"
-            style={{ animationDelay: '200ms' }}
+            style={{ animationDelay: '200ms', transformStyle: 'preserve-3d', willChange: 'transform' }}
           >
             {/* Main info card */}
-            <div className="card-glass rounded-[22px] p-6 border-white/10">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
-                <div>
+            <div className="card-glass rounded-[22px] p-6 border-white/10" style={{ transformStyle: 'preserve-3d', transform: 'translateZ(20px)' }}>
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5" style={{ transformStyle: 'preserve-3d', transform: 'translateZ(10px)' }}>
+                <div style={{ transformStyle: 'preserve-3d', transform: 'translateZ(5px)' }}>
                   <span className="eyebrow eyebrow--gold eyebrow--no-line mb-2 block text-xs">
                     Today's Energy Zone
                   </span>
-                  <h2 className="font-display text-2xl sm:text-[26px] font-bold text-white leading-[1.25]">
+                  <h2 className="font-display text-2xl sm:text-[26px] font-bold text-white leading-[1.25]" style={{ transform: 'translateZ(15px)' }}>
                     {ZONE_DATA[activeZone].title}<br />
                     <span className="text-shimmer font-display italic">{ZONE_DATA[activeZone].action}</span>
                   </h2>
                 </div>
-                <div className="flex-shrink-0 rounded-[12px] border border-[var(--gold)]/20 bg-[var(--gold)]/8 px-3 py-2 text-center w-[74px] h-[52px] flex flex-col justify-center items-center self-start sm:self-auto">
+                <div 
+                  className="flex-shrink-0 rounded-[12px] border border-[var(--gold)]/20 bg-[var(--gold)]/8 px-3 py-2 text-center w-[74px] h-[52px] flex flex-col justify-center items-center self-start sm:self-auto"
+                  style={{ transform: 'translateZ(30px)' }}
+                >
                   <p className="font-mono text-base font-bold text-[var(--gold)] leading-none">{ZONE_DATA[activeZone].code}</p>
                   <p className="font-mono text-[8px] text-white/40 tracking-wider uppercase mt-1 leading-none whitespace-nowrap">{ZONE_DATA[activeZone].label}</p>
                 </div>
               </div>
 
-              <p className="text-xs leading-relaxed text-white/50 mb-5 min-h-[48px]">
+              <p className="text-xs leading-relaxed text-white/50 mb-5 min-h-[48px]" style={{ transform: 'translateZ(10px)' }}>
                 {ZONE_DATA[activeZone].description}
               </p>
 
               {/* Divider */}
-              <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5" />
+              <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5" style={{ transform: 'translateZ(5px)' }} />
 
               {/* Zone grid */}
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2" style={{ transform: 'translateZ(15px)' }}>
                 {[['N','Wealth'],['E','Health'],['SE','Fire'],['SW','Grounding']].map(([dir, label]) => {
                   const isActive = activeZone === dir;
                   return (
@@ -350,6 +384,7 @@ const HeroSection = () => {
                   document.getElementById('scanner')?.scrollIntoView({ behavior: 'smooth' });
                 }}
                 className="mt-5 flex items-center justify-between text-xs font-mono uppercase tracking-wider font-semibold text-[var(--gold-vivid)] hover:text-[var(--gold-light)] transition-colors group"
+                style={{ transform: 'translateZ(20px)' }}
               >
                 <span>Explore all 8 directions</span>
                 <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
@@ -359,23 +394,23 @@ const HeroSection = () => {
             </div>
 
             {/* Stats row */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3" style={{ transformStyle: 'preserve-3d', transform: 'translateZ(25px)' }}>
               <HeroBadge value="8" label="Directions" delay={300} />
               <HeroBadge value="500+" label="Clients" delay={360} />
               <HeroBadge value="24h" label="Response" delay={420} />
             </div>
 
             {/* Services quick links */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3" style={{ transformStyle: 'preserve-3d', transform: 'translateZ(15px)' }}>
               {['Tarot Reading', 'Crystal Healing', 'Vastu Audit', 'Numerology'].map((s, i) => (
                 <Link
                   key={s}
                   to="/services"
                   className="group rounded-[14px] border border-white/8 bg-white/4 px-4 py-3.5 backdrop-blur-sm hover:border-[var(--jade)]/30 hover:bg-[var(--jade)]/5 transition-all"
-                  style={{ animationDelay: `${i * 60 + 400}ms` }}
+                  style={{ animationDelay: `${i * 60 + 400}ms`, transformStyle: 'preserve-3d', transform: 'translateZ(10px)' }}
                 >
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-[var(--jade)] mb-1 opacity-70">Service</p>
-                  <p className="font-semibold text-sm text-white group-hover:text-[var(--jade-light)] transition-colors leading-tight">{s}</p>
+                  <p className="font-mono text-[9px] uppercase tracking-widest text-[var(--jade)] mb-1 opacity-70" style={{ transform: 'translateZ(5px)' }}>Service</p>
+                  <p className="font-semibold text-sm text-white group-hover:text-[var(--jade-light)] transition-colors leading-tight" style={{ transform: 'translateZ(10px)' }}>{s}</p>
                 </Link>
               ))}
             </div>

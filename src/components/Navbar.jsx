@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useTheme } from '../contexts/ThemeContext';
 
 const NAV_ITEMS = [
   { label: 'Home', to: '/' },
@@ -10,18 +9,7 @@ const NAV_ITEMS = [
   { label: 'Consult', to: '/consult' },
 ];
 
-const SunIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="5" />
-    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-  </svg>
-);
 
-const MoonIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-  </svg>
-);
 
 const WaIcon = () => (
   <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -32,7 +20,6 @@ const WaIcon = () => (
 
 const Navbar = () => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -115,14 +102,7 @@ const Navbar = () => {
 
           {/* Right actions */}
           <div className="hidden lg:flex items-center gap-2.5">
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-glass)] text-[var(--text-muted)] backdrop-blur-sm transition-all hover:border-[var(--gold)] hover:text-[var(--gold)]"
-            >
-              {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-            </button>
+
 
             {/* Auth */}
             {user ? (
@@ -154,13 +134,7 @@ const Navbar = () => {
 
           {/* Mobile controls */}
           <div className="flex items-center gap-2 lg:hidden">
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border)] text-[var(--text-muted)]"
-            >
-              {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-            </button>
+
 
             <button
               onClick={() => setIsOpen((v) => !v)}

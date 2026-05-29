@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 const TESTIMONIALS = [
   {
@@ -50,6 +50,8 @@ const Testimonials = () => {
   const [direction, setDirection] = useState(1);
   const [animating, setAnimating] = useState(false);
   const timerRef = useRef(null);
+  const cardRef = useRef(null);
+  const glowRef = useRef(null);
 
   const go = (next) => {
     if (animating) return;
@@ -75,6 +77,37 @@ const Testimonials = () => {
     timerRef.current = setInterval(next, 5500);
   };
 
+  /* ── 3D tilt on mouse move ── */
+  const handleMouseMove = useCallback((e) => {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    const card = cardRef.current;
+    const glow = glowRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const xc = (e.clientX - rect.left) / rect.width;   // 0→1
+    const yc = (e.clientY - rect.top)  / rect.height;  // 0→1
+    const rx = (yc - 0.5) * -18;   // rotateX
+    const ry = (xc - 0.5) *  18;   // rotateY
+    card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
+    card.style.transition = 'transform 0.07s ease';
+    // move inner glow radial to cursor
+    if (glow) {
+      glow.style.background = `radial-gradient(ellipse 50% 60% at ${xc * 100}% ${yc * 100}%, rgba(200,146,42,0.10), transparent 70%)`;
+    }
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    const card = cardRef.current;
+    const glow = glowRef.current;
+    if (card) {
+      card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+      card.style.transition = 'transform 0.55s var(--ease-out)';
+    }
+    if (glow) {
+      glow.style.background = 'radial-gradient(ellipse 50% 60% at 50% 50%, rgba(200,146,42,0.06), transparent 70%)';
+    }
+  }, []);
+
   const t = TESTIMONIALS[active];
 
   return (
@@ -97,28 +130,101 @@ const Testimonials = () => {
           <em className="text-shimmer not-italic">already transformed.</em>
         </h2>
 
-        {/* Testimonial card */}
+        {/* ── 3D Card Stack ── */}
         <div
-          className="card-glass rounded-[28px] border border-white/8 p-10 md:p-14"
-          style={{
-            opacity: animating ? 0 : 1,
-            transform: animating ? `translateX(${direction * 24}px)` : 'translateX(0)',
-            transition: 'opacity 320ms ease, transform 320ms ease',
-          }}
+          className="relative"
+          style={{ perspective: '900px' }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         >
-          <Stars n={t.rating} />
+          {/* Phantom depth card — layer 2 (furthest back) */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-4 top-4 bottom-0 rounded-[28px] border border-white/[0.04]"
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              transform: 'translateZ(-40px) scale(0.97)',
+              transformStyle: 'preserve-3d',
+              backdropFilter: 'blur(0)',
+              zIndex: 0,
+            }}
+          />
+          {/* Phantom depth card — layer 1 */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-2 top-2 bottom-0 rounded-[28px] border border-white/[0.06]"
+            style={{
+              background: 'rgba(255,255,255,0.025)',
+              transform: 'translateZ(-20px) scale(0.99)',
+              transformStyle: 'preserve-3d',
+              zIndex: 1,
+            }}
+          />
 
-          <blockquote className="font-quote text-xl md:text-2xl text-white leading-relaxed mb-10">
-            &ldquo;{t.quote}&rdquo;
-          </blockquote>
+          {/* ── Active testimonial card ── */}
+          <div
+            ref={cardRef}
+            className="relative card-glass rounded-[28px] border border-white/8 p-10 md:p-14"
+            style={{
+              opacity: animating ? 0 : 1,
+              transform: animating
+                ? `perspective(900px) translateX(${direction * 28}px) rotateY(${direction * 8}deg)`
+                : 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)',
+              transition: 'opacity 320ms ease, transform 320ms ease',
+              transformStyle: 'preserve-3d',
+              willChange: 'transform',
+              zIndex: 2,
+            }}
+          >
+            {/* Dynamic cursor-tracking inner glow */}
+            <div
+              ref={glowRef}
+              className="absolute inset-0 rounded-[28px] pointer-events-none transition-all duration-200"
+              style={{
+                background: 'radial-gradient(ellipse 50% 60% at 50% 50%, rgba(200,146,42,0.06), transparent 70%)',
+              }}
+            />
 
-          <div className="flex items-center justify-center gap-4">
-            <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${t.color} font-display text-lg font-bold text-[#080c0b] shadow-lg`}>
-              {t.initial}
+            {/* Top-edge shimmer line */}
+            <div
+              className="absolute top-0 inset-x-12 h-px pointer-events-none"
+              style={{
+                background: 'linear-gradient(90deg, transparent, rgba(200,146,42,0.4), transparent)',
+                transform: 'translateZ(12px)',
+              }}
+            />
+
+            {/* Stars — lifted in z */}
+            <div style={{ transform: 'translateZ(24px)' }}>
+              <Stars n={t.rating} />
             </div>
-            <div className="text-left">
-              <p className="font-semibold text-white text-sm">{t.name}</p>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-white/35 mt-0.5">{t.role}</p>
+
+            {/* Quote — deepest layer for prominence */}
+            <blockquote
+              className="font-quote text-xl md:text-2xl text-white leading-relaxed mb-10"
+              style={{ transform: 'translateZ(32px)' }}
+            >
+              &ldquo;{t.quote}&rdquo;
+            </blockquote>
+
+            {/* Author — mid depth */}
+            <div
+              className="flex items-center justify-center gap-4"
+              style={{ transform: 'translateZ(20px)' }}
+            >
+              {/* Glowing avatar ring */}
+              <div className="relative">
+                <div
+                  className={`absolute inset-0 rounded-full bg-gradient-to-br ${t.color} opacity-40 blur-md scale-125`}
+                />
+                <div className={`relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${t.color} font-display text-lg font-bold text-[#080c0b] shadow-lg`}>
+                  {t.initial}
+                </div>
+              </div>
+              <div className="text-left">
+                <p className="font-semibold text-white text-sm">{t.name}</p>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-white/35 mt-0.5">{t.role}</p>
+              </div>
             </div>
           </div>
         </div>

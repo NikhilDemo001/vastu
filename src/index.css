@@ -195,9 +195,10 @@ body {
   position: relative;
 }
 
-/* Premium cursor disabled
+/* Premium cursor disabled — normal cursor active */
+/*
 @media (pointer: fine) {
-  body, a, button, [role="button"], select { cursor: none; }
+  body, a, button, [role="button"], select, input, textarea { cursor: none; }
 }
 */
 
@@ -953,6 +954,15 @@ textarea:focus-visible {
 .animate-slide-in-up { animation: slide-in-up 0.6s var(--ease-out) both; }
 .animate-scale-in { animation: scale-in 0.5s var(--ease-spring) both; }
 .animate-ping-soft { animation: ping-soft 2s ease-out infinite; }
+.animate-float-3d { animation: float-3d 8s ease-in-out infinite; }
+
+@keyframes float-3d {
+  0%, 100% { transform: translateY(0px)   translateX(0px)  scale(1);    opacity: 0.7; }
+  25%       { transform: translateY(-18px) translateX(8px)  scale(1.04); opacity: 0.85; }
+  50%       { transform: translateY(-8px)  translateX(-10px) scale(0.97); opacity: 0.75; }
+  75%       { transform: translateY(-24px) translateX(4px)  scale(1.06); opacity: 0.9; }
+}
+
 
 /* Loading shimmer for image placeholders */
 .shimmer-bg {
@@ -1001,6 +1011,24 @@ textarea:focus-visible {
 .no-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* 3D Aura Scanner Sweep Animation */
+@keyframes scanner-sweep {
+  0% {
+    top: -5%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    top: 105%;
+    opacity: 0;
+  }
 }
 
 

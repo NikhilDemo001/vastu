@@ -71,6 +71,34 @@ const AuraScanner = () => {
     ).slice(0, 2);
   }, [activeGoal]);
 
+  const handleMouseMove = (e) => {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const xc = (x / rect.width) - 0.5;
+    const yc = (y / rect.height) - 0.5;
+
+    const maxTilt = 4; // ultra subtle tilt
+    const rotateX = -yc * maxTilt;
+    const rotateY = xc * maxTilt;
+
+    el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.005, 1.005, 1.005)`;
+  };
+
+  const handleMouseLeave = (e) => {
+    const el = e.currentTarget;
+    el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+    el.style.transition = 'transform 0.6s var(--ease-out)';
+  };
+
+  const handleMouseEnter = (e) => {
+    const el = e.currentTarget;
+    el.style.transition = 'transform 0.1s var(--ease-out)';
+  };
+
   const triggerScan = () => {
     setIsScanning(true);
     setTimeout(() => {
@@ -100,7 +128,13 @@ const AuraScanner = () => {
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
           
           {/* Controls & Metrics Panel */}
-          <div className="space-y-8 bg-white/5 border border-white/10 p-6 md:p-8 rounded-[16px] backdrop-blur-md">
+          <div 
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onMouseEnter={handleMouseEnter}
+            className="space-y-8 bg-white/5 border border-white/10 p-6 md:p-8 rounded-[16px] backdrop-blur-md"
+            style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+          >
             {/* Step 1: Direction */}
             <div>
               <h3 className="text-sm font-extrabold uppercase tracking-wider text-[#f2b84b] mb-4">
@@ -177,10 +211,25 @@ const AuraScanner = () => {
           </div>
 
           {/* Interactive Aura Orb & Products Recommendation */}
-          <div className="flex flex-col items-center justify-center space-y-8">
+          <div 
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onMouseEnter={handleMouseEnter}
+            className="flex flex-col items-center justify-center space-y-8"
+            style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+          >
             
             {/* Pulsing Aura Orb */}
-            <div className="relative h-64 w-64 md:h-80 md:w-80 flex items-center justify-center">
+            <div className="relative h-64 w-64 md:h-80 md:w-80 flex items-center justify-center" style={{ transformStyle: 'preserve-3d', transform: 'translateZ(30px)' }}>
+              {isScanning && (
+                <div 
+                  className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#f2b84b] to-transparent shadow-[0_0_12px_#f2b84b,0_0_25px_rgba(242,184,75,0.7)] z-30 pointer-events-none rounded-full"
+                  style={{
+                    animation: 'scanner-sweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                    transform: 'translateZ(40px)',
+                  }}
+                />
+              )}
               {/* Glowing Aura Ring Background */}
               <div
                 className={`absolute inset-0 rounded-full bg-gradient-to-tr ${
@@ -188,11 +237,12 @@ const AuraScanner = () => {
                 } opacity-50 blur-[60px] animate-pulse transition-all duration-700`}
                 style={{
                   boxShadow: `0 0 100px 20px ${activeGoal.glowColor}`,
+                  transform: 'translateZ(5px)'
                 }}
               ></div>
 
               {/* Outer Cosmic Ring */}
-              <div className="absolute inset-0 border border-white/20 rounded-full animate-[spin_10s_linear_infinite] pointer-events-none">
+              <div className="absolute inset-0 border border-white/20 rounded-full animate-[spin_10s_linear_infinite] pointer-events-none" style={{ transform: 'translateZ(15px)' }}>
                 <div className="absolute top-0 left-1/2 h-2.5 w-2.5 bg-[#f2b84b] rounded-full -translate-x-1/2"></div>
               </div>
 
@@ -203,11 +253,12 @@ const AuraScanner = () => {
                 } shadow-[inset_0_4px_30px_rgba(255,255,255,0.2)] border border-white/30 flex flex-col items-center justify-center text-center transition-all duration-700 ${
                   isScanning ? 'scale-90 rotate-90 opacity-60' : 'scale-100'
                 }`}
+                style={{ transform: 'translateZ(25px)', transformStyle: 'preserve-3d' }}
               >
-                <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#111715] bg-white/90 px-2 py-0.5 rounded-full mb-1">
+                <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#111715] bg-white/90 px-2 py-0.5 rounded-full mb-1" style={{ transform: 'translateZ(10px)' }}>
                   Active Aura
                 </span>
-                <span className="text-xl md:text-2xl font-black text-[#111715] leading-tight font-display px-4">
+                <span className="text-xl md:text-2xl font-black text-[#111715] leading-tight font-display px-4" style={{ transform: 'translateZ(15px)' }}>
                   {isScanning ? 'Scanning...' : activeGoal.label}
                 </span>
               </div>

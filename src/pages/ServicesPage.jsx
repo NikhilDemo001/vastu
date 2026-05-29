@@ -1,7 +1,88 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { servicePackages } from '../data/catalog';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+
+/* ── 3D tilt service card ── */
+const ServiceCard3D = ({ children, index }) => {
+  const cardRef = useRef(null);
+  const glowRef = useRef(null);
+  const shimmerRef = useRef(null);
+
+  const handleMouseMove = useCallback((e) => {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    const card = cardRef.current;
+    const glow = glowRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const xc = (e.clientX - rect.left) / rect.width;
+    const yc = (e.clientY - rect.top)  / rect.height;
+    const rx = (yc - 0.5) * -12;
+    const ry = (xc - 0.5) *  12;
+    card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px) scale3d(1.015,1.015,1.015)`;
+    card.style.transition  = 'transform 0.08s ease';
+    card.style.boxShadow   = `0 24px 60px rgba(200,146,42,0.12), 0 0 0 1px rgba(200,146,42,0.15)`;
+    if (glow) {
+      glow.style.background = `radial-gradient(ellipse 60% 60% at ${xc*100}% ${yc*100}%, rgba(200,146,42,0.07), transparent 70%)`;
+      glow.style.opacity = '1';
+    }
+    if (shimmerRef.current) {
+      shimmerRef.current.style.opacity = '1';
+      shimmerRef.current.style.transform = `scaleX(${0.4 + xc * 0.6})`;
+    }
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    const card = cardRef.current;
+    const glow = glowRef.current;
+    if (card) {
+      card.style.transform  = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0) scale3d(1,1,1)';
+      card.style.transition = 'transform 0.55s var(--ease-out), box-shadow 0.55s var(--ease-out)';
+      card.style.boxShadow  = '0 16px 48px rgba(201,150,58,0.06)';
+    }
+    if (glow) glow.style.opacity = '0';
+    if (shimmerRef.current) {
+      shimmerRef.current.style.opacity = '0';
+    }
+  }, []);
+
+  return (
+    <article
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="reveal ink-panel border border-[var(--gold)]/30 rounded-[20px] shadow-[0_16px_48px_rgba(201,150,58,0.06)] relative overflow-hidden flex flex-col justify-between min-h-[580px]"
+      style={{
+        transitionDelay: `${index * 80}ms`,
+        transformStyle: 'preserve-3d',
+        willChange: 'transform',
+        transition: 'transform 0.55s var(--ease-out), box-shadow 0.55s var(--ease-out)',
+      }}
+    >
+      {/* Cursor-following inner glow */}
+      <div
+        ref={glowRef}
+        className="absolute inset-0 pointer-events-none rounded-[20px] transition-opacity duration-200"
+        style={{ opacity: 0 }}
+      />
+      {/* Top-edge neon shimmer */}
+      <div
+        ref={shimmerRef}
+        className="absolute top-0 left-0 right-0 h-px pointer-events-none origin-left transition-all duration-150"
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(200,146,42,0.6), transparent)',
+          opacity: 0,
+          transform: 'scaleX(0.4)',
+          transformOrigin: 'left center',
+          zIndex: 10,
+        }}
+      />
+      {/* Glowing corner saffron blur */}
+      <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--gold)]/[0.04] rounded-full blur-2xl pointer-events-none" />
+      {children}
+    </article>
+  );
+};
 
 const journey = [
   ['01', 'Read the space', 'We identify directional strengths, blocked zones, and the daily movement pattern of energy.'],
@@ -160,17 +241,13 @@ const ServicesPage = () => {
               };
 
               return (
-                <article
-                  key={service.title}
-                  className="reveal ink-panel border border-[var(--gold)]/30 rounded-[20px] p-8 shadow-[0_16px_48px_rgba(201,150,58,0.06)] relative overflow-hidden transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0_20px_50px_rgba(201,150,58,0.1)] flex flex-col justify-between min-h-[580px]"
-                  style={{ transitionDelay: `${index * 80}ms` }}
-                >
-                  {/* Glowing saffron background filter */}
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--gold)]/[0.04] rounded-full blur-2xl pointer-events-none" />
-
-                  <div className="space-y-5">
-                    {/* Header: Eyebrow and Tag */}
-                    <div className="flex justify-between items-center">
+                <ServiceCard3D key={service.title} index={index}>
+                  <div className="p-8 space-y-5" style={{ transformStyle: 'preserve-3d' }}>
+                    {/* Header: Eyebrow and Tag — z-depth 8 */}
+                    <div
+                      className="flex justify-between items-center"
+                      style={{ transform: 'translateZ(8px)' }}
+                    >
                       <span className="eyebrow eyebrow--gold block text-xs tracking-widest font-mono">
                         {service.eyebrow}
                       </span>
@@ -179,23 +256,38 @@ const ServicesPage = () => {
                       </span>
                     </div>
 
-                    {/* Title & Price */}
-                    <div className="flex items-start justify-between gap-4">
+                    {/* Title & Price — price badge floats highest z-depth 30 */}
+                    <div
+                      className="flex items-start justify-between gap-4"
+                      style={{ transform: 'translateZ(14px)' }}
+                    >
                       <h3 className="font-display text-3xl font-extrabold text-white leading-tight">
                         {service.title}
                       </h3>
-                      <span className="flex-shrink-0 rounded-[10px] px-4 py-2 font-display text-lg font-bold bg-[var(--gold)] text-[#0a0e0d] shadow-sm">
+                      <span
+                        className="flex-shrink-0 rounded-[10px] px-4 py-2 font-display text-lg font-bold bg-[var(--gold)] text-[#0a0e0d] shadow-sm"
+                        style={{
+                          transform: 'translateZ(20px)',
+                          boxShadow: '0 8px 24px rgba(200,146,42,0.25)',
+                        }}
+                      >
                         {service.price}
                       </span>
                     </div>
 
-                    {/* Description */}
-                    <p className="text-xs sm:text-sm leading-relaxed text-white/70">
+                    {/* Description — z-depth 10 */}
+                    <p
+                      className="text-xs sm:text-sm leading-relaxed text-white/70"
+                      style={{ transform: 'translateZ(10px)' }}
+                    >
                       {service.description}
                     </p>
 
-                    {/* Metaphysical Alignment Details (100% Static & Visible) */}
-                    <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02] space-y-2.5">
+                    {/* Metaphysical Alignment Details — z-depth 12 */}
+                    <div
+                      className="p-4 rounded-xl border border-white/5 bg-white/[0.02] space-y-2.5"
+                      style={{ transform: 'translateZ(12px)' }}
+                    >
                       <div className="flex justify-between items-center text-[10px] uppercase font-mono tracking-widest text-[#f2b84b] border-b border-white/5 pb-1">
                         <span>Energy Alignment</span>
                         <span>Diagnostics</span>
@@ -212,8 +304,11 @@ const ServicesPage = () => {
                       </div>
                     </div>
 
-                    {/* Inclusions checklist */}
-                    <div className="space-y-2 pt-1">
+                    {/* Inclusions checklist — z-depth 16 */}
+                    <div
+                      className="space-y-2 pt-1"
+                      style={{ transform: 'translateZ(16px)' }}
+                    >
                       <span className="block font-mono text-[9px] uppercase tracking-wider text-slate-400">Included in Session</span>
                       <div className="grid gap-2">
                         {service.includes.map((item) => (
@@ -231,8 +326,11 @@ const ServicesPage = () => {
                     </div>
                   </div>
 
-                  {/* Direct Booking CTA */}
-                  <div className="pt-6">
+                  {/* Direct Booking CTA — z-depth 18 */}
+                  <div
+                    className="px-8 pb-8 pt-0"
+                    style={{ transform: 'translateZ(18px)' }}
+                  >
                     <Link
                       to="/consult"
                       className="btn btn-gold w-full justify-center text-center font-bold"
@@ -240,7 +338,7 @@ const ServicesPage = () => {
                       Book Consultation Session ➔
                     </Link>
                   </div>
-                </article>
+                </ServiceCard3D>
               );
             })}
           </div>

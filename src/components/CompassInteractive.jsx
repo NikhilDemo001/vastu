@@ -114,6 +114,51 @@ const CompassInteractive = ({ compact = false }) => {
   const [selectedDirection, setSelectedDirection] = useState(directions[0]);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
+  const handleMouseMove = (e) => {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const xc = (x / rect.width) - 0.5;
+    const yc = (y / rect.height) - 0.5;
+
+    const maxTilt = 10; // slightly higher tilt for tactical dials
+    const rotateX = -yc * maxTilt;
+    const rotateY = xc * maxTilt;
+
+    el.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
+    
+    const needleShadow = el.querySelector('.compass-needle-shadow');
+    if (needleShadow) {
+      const sx = -rotateY * 1.5;
+      const sy = rotateX * 1.5;
+      needleShadow.style.transform = `translateZ(3px) translate(calc(-50% + ${sx}px), ${sy}px)`;
+    }
+  };
+
+  const handleMouseLeave = (e) => {
+    const el = e.currentTarget;
+    el.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+    el.style.transition = 'transform 0.6s var(--ease-out)';
+    
+    const needleShadow = el.querySelector('.compass-needle-shadow');
+    if (needleShadow) {
+      needleShadow.style.transform = 'translateZ(3px) translate(-50%, 0)';
+      needleShadow.style.transition = 'transform 0.6s var(--ease-out)';
+    }
+  };
+
+  const handleMouseEnter = (e) => {
+    const el = e.currentTarget;
+    el.style.transition = 'transform 0.1s var(--ease-out)';
+    const needleShadow = el.querySelector('.compass-needle-shadow');
+    if (needleShadow) {
+      needleShadow.style.transition = 'transform 0.1s var(--ease-out)';
+    }
+  };
+
   const handleDirectionSelect = (dir) => {
     setSelectedDirection(dir);
     if (soundEnabled) {
@@ -154,25 +199,51 @@ const CompassInteractive = ({ compact = false }) => {
         <div className="grid overflow-hidden rounded-[20px] border border-[#111715]/10 dark:border-white/10 bg-[#fffaf2] dark:bg-[#0c100f] shadow-[0_24px_70px_rgba(17,23,21,0.12)] lg:grid-cols-[1.05fr_0.95fr] relative">
           <div className="noise" />
 
-          <div className="lapis-panel relative grid min-h-[560px] place-items-center overflow-hidden p-5">
-            <div className="absolute inset-0 opacity-20 rule-grid" />
-            <div className="relative aspect-square w-full max-w-[520px]">
+          <div 
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onMouseEnter={handleMouseEnter}
+            className="lapis-panel relative grid min-h-[560px] place-items-center overflow-hidden p-5"
+            style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+          >
+            <div className="absolute inset-0 opacity-20 rule-grid" style={{ transform: 'translateZ(5px)' }} />
+            <div className="relative aspect-square w-full max-w-[520px]" style={{ transformStyle: 'preserve-3d', transform: 'translateZ(15px)' }}>
+              {/* Conic Gradient Ring */}
               <div
                 className="absolute inset-0 rounded-full border border-white/20 shadow-[0_34px_90px_rgba(0,0,0,0.24)]"
                 style={{
                   background:
                     'conic-gradient(from -22.5deg, rgba(15,118,110,0.9), rgba(42,157,143,0.9), rgba(106,153,78,0.9), rgba(242,184,75,0.92), rgba(216,93,63,0.9), rgba(155,106,59,0.9), rgba(39,76,119,0.9), rgba(124,106,156,0.9), rgba(15,118,110,0.9))',
+                  transform: 'translateZ(10px)'
                 }}
               />
-              <div className="absolute inset-[13%] rounded-full bg-[#111715]/80 backdrop-blur-sm" />
-              <div className="absolute inset-[27%] rounded-full border border-white/20 bg-[#fffaf2] dark:bg-[#0c100f] shadow-2xl" />
+              {/* Outer glass ring */}
+              <div className="absolute inset-[13%] rounded-full bg-[#111715]/80 backdrop-blur-sm" style={{ transform: 'translateZ(20px)' }} />
+              {/* Inner card frame */}
+              <div className="absolute inset-[27%] rounded-full border border-white/20 bg-[#fffaf2] dark:bg-[#0c100f] shadow-2xl" style={{ transform: 'translateZ(35px)' }} />
+              
+              {/* Spinning 3D Pointer Needle */}
               <div
                 className="absolute inset-[27%] rounded-full transition-transform duration-500"
-                style={{ transform: `rotate(${selectedDirection.degree}deg)` }}
+                style={{ 
+                  transform: `rotate(${selectedDirection.degree}deg)`,
+                  transformStyle: 'preserve-3d',
+                  transform: 'translateZ(50px)'
+                }}
               >
-                <div className="absolute left-1/2 top-6 h-[39%] w-1.5 -translate-x-1/2 rounded-full bg-[#d85d3f]" />
+                {/* Physical Needle */}
+                <div 
+                  className="absolute left-1/2 top-6 h-[39%] w-1.5 -translate-x-1/2 rounded-full bg-[#d85d3f]" 
+                  style={{ transform: 'translateZ(15px)', boxShadow: '0 0 10px rgba(216,93,63,0.35)' }}
+                />
+                {/* Dynamic floating needle shadow */}
+                <div 
+                  className="absolute left-1/2 top-6 h-[39%] w-1.5 -translate-x-1/2 rounded-full bg-black/40 blur-[3px] pointer-events-none compass-needle-shadow"
+                  style={{ transform: 'translateZ(3px) translate(-50%, 0)' }}
+                />
               </div>
 
+              {/* Cardinal Buttons */}
               {directions.map((dir) => {
                 const radius = 42;
                 const angle = (dir.degree - 90) * (Math.PI / 180);
@@ -185,10 +256,14 @@ const CompassInteractive = ({ compact = false }) => {
                     onClick={() => handleDirectionSelect(dir)}
                     className={`absolute grid h-10 w-10 text-xs -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[8px] border font-extrabold transition sm:h-16 sm:w-16 sm:text-sm ${
                       isSelected
-                        ? 'scale-110 border-[#f2b84b] bg-[#f2b84b] text-[#111715] shadow-xl ring-2 ring-[#f2b84b]/20'
+                        ? 'scale-110 border-[#f2b84b] bg-[#f2b84b] text-[#111715] shadow-xl ring-2 ring-[#f2b84b]/20 font-black'
                         : 'border-white/20 bg-white/20 text-white hover:scale-105 hover:bg-white/30'
                     }`}
-                    style={{ left: `${x}%`, top: `${y}%` }}
+                    style={{ 
+                      left: `${x}%`, 
+                      top: `${y}%`,
+                      transform: isSelected ? 'translateZ(70px) scale(1.1)' : 'translateZ(60px)'
+                    }}
                     aria-label={`Show ${dir.name} direction`}
                   >
                     {dir.short}
