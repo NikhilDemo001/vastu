@@ -103,13 +103,13 @@ const CheckIcon = ({ dark }) => (
 const serviceMetaphysicalData = {
   'Rudraksha Consultancy': {
     chakras: 'Heart & Third Eye 📿',
-    focus: 'Astrological corrections, emotional balance & spiritual alignment.',
-    deliverable: 'Detailed Rudraksha consultation report + custom energization guide.',
+    focus: 'Planetary analysis, stress release, and emotional balancing.',
+    deliverable: 'Mukhi recommendation sheet, purification guide, and energizing mantras.',
   },
   'Astrology & Ratna Guidance': {
     chakras: 'Crown & Solar Plexus 🪐',
-    focus: 'Dasha analysis, planetary remedies & gemstone compatibility.',
-    deliverable: '1-hour live session + 10-page horoscope & gemstone guidance PDF.',
+    focus: 'Dasha timeline mapping, Lal Kitab/Vedic remedies, and planetary stone matching.',
+    deliverable: '1-Hr video reading + detailed horoscope, metal, and finger wear prescription.',
   },
   'Crystals Grid Audit': {
     chakras: 'Solar Plexus & Heart ⛰️',
@@ -122,19 +122,19 @@ const serviceMetaphysicalData = {
     deliverable: '3-cast Elder Futhark casting session + runestone recommendations.',
   },
   'Mobile Numerology': {
-    chakras: 'Throat & Throat 📱',
-    focus: 'Communication success, client attraction & digit compatibility.',
-    deliverable: 'Custom Mobile Numerology report + 3 recommended number grids.',
+    chakras: 'Throat & Third Eye 📱',
+    focus: 'Digital vibration checking, lucky sum matching, and professional attraction grids.',
+    deliverable: 'Mulank/Bhagyank compatibility check + lucky phone number digit options.',
   },
   'Name Numerology': {
-    chakras: 'Third Eye & Throat ✍️',
-    focus: 'Identity resonance, career success & name vibration correction.',
-    deliverable: 'Name spelling correction advice + custom signature layout.',
+    chakras: 'Throat & Third Eye ✍️',
+    focus: 'Chaldean vibrational analysis, spelling corrections, and signature alignment.',
+    deliverable: 'Personal/Business name spelling adjustment sheet + signature layout guide.',
   },
   'Vastu Shastra Audit': {
-    chakras: 'Earth Resonance & Solar 🏡',
-    focus: 'Wealth gateways, relationship directions & structural remedies (0 demolition).',
-    deliverable: 'Certified Vastu Acharya audit report + directional elemental maps.',
+    chakras: 'Earth Resonance & Root 🏡',
+    focus: 'Blocked entryways, element balancing (Pancha Bhoota), and zero-demolition remedy mapping.',
+    deliverable: 'Property layout energy mapping + customized copper/brass remedy layout plan.',
   },
   'Switch-Word remedy': {
     chakras: 'Throat & Third Eye 🗣️',
