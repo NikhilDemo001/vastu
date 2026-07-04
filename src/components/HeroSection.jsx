@@ -402,7 +402,7 @@ const HeroSection = () => {
 
             {/* Services quick links */}
             <div className="grid grid-cols-2 gap-3" style={{ transformStyle: 'preserve-3d', transform: 'translateZ(15px)' }}>
-              {['Tarot Reading', 'Crystal Healing', 'Vastu Audit', 'Numerology'].map((s, i) => (
+              {['Astrology', 'Crystal Healing', 'Vastu Audit', 'Numerology'].map((s, i) => (
                 <Link
                   key={s}
                   to="/services"

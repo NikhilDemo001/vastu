@@ -9,12 +9,12 @@ const FOOTER_LINKS = {
     { label: 'Consultation', to: '/consult' },
   ],
   Services: [
-    { label: 'Tarot Card Reading', to: '/services' },
-    { label: 'Angel Consultation', to: '/services' },
+    { label: 'Rudraksha Consultancy', to: '/services' },
+    { label: 'Astrology Guidance', to: '/services' },
     { label: 'Crystal Healing', to: '/services' },
-    { label: 'Runes Casting', to: '/services' },
-    { label: 'Vastu & Feng Shui', to: '/services' },
-    { label: 'Numerology', to: '/services' },
+    { label: 'Vastu Shastra Audit', to: '/services' },
+    { label: 'Mobile Numerology', to: '/services' },
+    { label: 'Name Numerology', to: '/services' },
   ],
   Legal: [
     { label: 'Privacy Policy', to: '/' },
@@ -104,10 +104,10 @@ const Footer = () => (
         <div>
           <div className="flex items-center gap-3 mb-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-white/10 bg-white/5">
-              <span className="font-display text-lg font-bold text-[var(--gold-vivid)]">HV</span>
+              <span className="font-display text-lg font-bold text-[var(--gold-vivid)]">HE</span>
             </div>
             <div className="leading-none">
-              <span className="block font-display text-[16px] font-bold text-white leading-none">hareshwar vastu</span>
+              <span className="block font-display text-[16px] font-bold text-white leading-none">Hareshvar Exim Pvt Ltd</span>
               <span className="block font-mono text-[9px] text-white/30 uppercase tracking-[0.2em] mt-1">Divine Living Atelier</span>
             </div>
           </div>
@@ -184,7 +184,7 @@ const Footer = () => (
       {/* Bottom bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-[12px] text-white/25">
-          © {new Date().getFullYear()} Hareshwar Vastu. All rights reserved.
+          © {new Date().getFullYear()} Hareshvar Exim Pvt Ltd. All rights reserved.
         </p>
         <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--gold-vivid)]/40">
           Vastu · Crystals · Aura · Healing

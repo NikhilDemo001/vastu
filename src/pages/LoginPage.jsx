@@ -118,7 +118,7 @@ const LoginPage = () => {
           {isSignUp ? 'Create Account' : 'Welcome back'}
         </h2>
         <p className="mt-2 text-[#68736d] text-sm">
-          {isSignUp ? 'Register to align your energy and space.' : 'Sign in to continue to hareshwar vastu.'}
+          {isSignUp ? 'Register to align your energy and space.' : 'Sign in to continue to Hareshvar Exim Pvt Ltd.'}
         </p>
 
         <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>

@@ -79,11 +79,11 @@ const Navbar = () => {
           <Link to="/" className="group flex flex-shrink-0 items-center gap-3">
             <div className="relative flex h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-[10px] bg-[var(--ink)] shadow-md transition-shadow group-hover:shadow-[var(--shadow-gold)]">
               <div className="absolute bottom-0 inset-x-0 h-[3px] bg-gradient-to-r from-[var(--gold)] to-[var(--jade)] transition-all group-hover:h-[4px]" />
-              <span className="font-display text-[20px] font-bold leading-none text-[var(--paper)] pb-0.5">HV</span>
+              <span className="font-display text-[20px] font-bold leading-none text-[var(--paper)] pb-0.5">HE</span>
             </div>
             <div className="leading-none">
               <span className="block font-display text-[16px] font-bold text-[var(--text-primary)] leading-none group-hover:text-[var(--jade)] transition-colors">
-                hareshwar vastu
+                Hareshvar Exim Pvt Ltd
               </span>
               <span className="block font-mono text-[9px] uppercase tracking-[0.22em] text-[var(--jade)] opacity-70 mt-1">
                 Divine Living Atelier
